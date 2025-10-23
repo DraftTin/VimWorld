@@ -1,0 +1,211 @@
+/* --- Page scaffolding --- */
+:root {
+  --fg: #0f0;
+  --bg: #000;
+  --panel: #0a0; /* subtle variant for borders */
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: monospace;
+}
+
+/* Center the whole experience vertically & horizontally */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* horizontal center */
+  justify-content: center; /* vertical center */
+  padding: 24px;
+  gap: 16px;
+}
+
+/* Header above the board */
+.hud {
+  text-align: center;
+  line-height: 1.4;
+}
+#levelTitle {
+  font-weight: bold;
+  font-size: 18px;
+}
+#levelDesc {
+  opacity: 0.85;
+}
+
+/* Board + sidebar area */
+.stage {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* ASCII board */
+#game {
+  white-space: pre;
+  line-height: 1.2;
+  user-select: none;
+  outline: none; /* allow focus without blue outline */
+  padding: 12px;
+  border: 1px solid var(--panel);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 24px rgba(0, 255, 0, 0.08);
+}
+
+/* Vim-like cursor highlight */
+.cursor {
+  background: currentColor; /* uses #0f0 from body */
+  color: #000;
+  outline: 1px solid var(--fg); /* visible even when underlying char is space */
+}
+.rock {
+  opacity: 0.9;
+}
+
+/* Optional blinking cursor */
+/*
+@keyframes blink { 50% { opacity: 0.35; } }
+.cursor { animation: blink 1s steps(1) infinite; }
+*/
+
+/* Sidebar for hints/NPC text */
+.sidebar {
+  min-width: 26ch; /* readable column */
+  max-width: 36ch;
+  padding: 12px 14px;
+  border: 1px solid var(--panel);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.sidebar h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+#hints {
+  line-height: 1.3;
+  opacity: 0.9;
+}
+
+/* Responsive tweak: stack on small screens */
+@media (max-width: 700px) {
+  .stage {
+    flex-direction: column;
+    align-items: center;
+  }
+  .sidebar {
+    width: 100%;
+    max-width: 48ch;
+  }
+}
+
+/* ... keep your existing styles ... */
+
+/* Floating command window */
+.cmd {
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: var(--fg, #0f0);
+  font-family: monospace;
+  border: 1px solid var(--panel, #0a0);
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 20ch;
+  box-shadow: 0 0 24px rgba(0, 255, 0, 0.15);
+}
+.cmd.hidden {
+  display: none;
+}
+#cmdText {
+  white-space: pre;
+}
+#cmdMsg {
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+/* Backdrop & modal (centered) */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+.modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background: rgba(0, 0, 0, 0.95);
+  color: var(--fg, #0f0);
+  font-family: monospace;
+  min-width: 44ch;
+  max-width: 90vw;
+  max-height: 80vh;
+  border: 1px solid var(--panel, #0a0);
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+  overflow: hidden;
+}
+.hidden {
+  display: none;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--panel, #0a0);
+  font-weight: bold;
+}
+.modal-close-hint {
+  opacity: 0.8;
+  font-weight: normal;
+}
+
+.modal-body {
+  margin: 0;
+  padding: 10px 12px 12px 12px;
+  white-space: pre-wrap;
+  line-height: 1.25;
+}
+
+/* Shades so ASCII is readable */
+.wall {
+  color: #0a0;
+  opacity: 0.75;
+}
+.goal {
+  color: #ff0;
+}
+.word {
+  color: #0f0;
+} /* same fg; just a hook if you want special tint */
+.under {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+}
+
+/* Status line under the board */
+#status {
+  margin-top: 8px;
+  opacity: 0.9;
+  font-size: 14px;
+}

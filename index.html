@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vimventure</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hud">
+        <div id="levelTitle">Level 1 - hjkl-only maze</div>
+        <div id="levelDesc">
+          Type <strong>:start</strong> to begin. Then reach G with h j k l.
+        </div>
+      </header>
+
+      <main class="stage">
+        <pre id="game" tabindex="0" aria-label="Vimventure board"></pre>
+        <aside class="sidebar">
+          <h3>Hints</h3>
+          <div id="hints">
+            Press <strong>:</strong> to open command line, then type
+            <strong>start</strong>.
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <!-- Floating Vim-style command-line -->
+    <div id="cmdOverlay" class="cmd hidden" aria-live="polite">
+      <div id="cmdText">:</div>
+      <div id="cmdMsg"></div>
+      <div id="cmdResult"></div>
+    </div>
+
+    <!-- Help backdrop + modal -->
+    <div id="backdrop" class="backdrop hidden"></div>
+    <div
+      id="helpModal"
+      class="modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="helpTitle"
+    >
+      <div class="modal-header">
+        <span id="helpTitle">:help</span>
+        <span class="modal-close-hint">[Esc] or q to close</span>
+      </div>
+      <pre id="helpBody" class="modal-body"></pre>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
