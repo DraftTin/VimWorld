@@ -19,6 +19,10 @@ const CMD_RESULT = document.getElementById("cmdResult");
 const BACKDROP = document.getElementById("backdrop");
 const HELP_MODAL = document.getElementById("helpModal");
 const HELP_BODY = document.getElementById("helpBody");
+const HELP_TITLE = document.getElementById("helpTitle");
+
+// track what the modal is showing
+let modalContext = null; // "help" | "win" | "end" | null
 
 export function renderMap(state) {
   const g = state.grid ?? [];
@@ -86,16 +90,33 @@ export function isCmdlineOpen() {
 
 // --- Public: help modal ---
 export function openHelp(text) {
+  modalContext = "help";
+  HELP_TITLE.textContent = ":help";
   HELP_BODY.textContent = text;
   BACKDROP.classList.remove("hidden");
   HELP_MODAL.classList.remove("hidden");
 }
-export function closeHelp() {
+
+export function openWin(bodyText, isEnd = false) {
+  modalContext = isEnd ? "end" : "win";
+  HELP_TITLE.textContent = isEnd ? "🎉 Game Complete" : "✨ Level Complete";
+  HELP_BODY.textContent = bodyText;
+  BACKDROP.classList.remove("hidden");
+  HELP_MODAL.classList.remove("hidden");
+}
+
+export function closeModal() {
+  modalContext = null;
   BACKDROP.classList.add("hidden");
   HELP_MODAL.classList.add("hidden");
 }
-export function isHelpOpen() {
+
+export function isModalOpen() {
   return !HELP_MODAL.classList.contains("hidden");
+}
+
+export function modalMode() {
+  return modalContext; // "help" | "win" | "end" | null
 }
 
 // --- Optional: tweak tile size via CSS var ---

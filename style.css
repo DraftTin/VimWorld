@@ -56,11 +56,12 @@ body {
 /* Sidebar for hints/NPC text */
 .sidebar {
   min-width: 26ch;
-  max-width: 36ch;
+  max-width: 50ch;
   padding: 12px 14px;
   border: 1px solid var(--panel);
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.35);
+  flex: 0 0 auto;
 }
 .sidebar h3 {
   margin: 0 0 8px 0;

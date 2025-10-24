@@ -2,8 +2,15 @@
 export default {
   id: 2,
   title: "Level 2 — word motions",
-  desc: "Type <strong>:start</strong> to begin. Then reach <strong>🚪</strong> with <strong>h j k l</strong>.",
-  hint: "Press <strong>:</strong> to open command line, then type <strong>start</strong>.",
+  desc: `Word Motions Unlocked. Try to use "w e b" motions`,
+  hint: `
+“These aren't ordinary paths,” the old robot says.<br/><br/>
+
+“You can walk letter by letter if you wish... but real adventurers 
+leap by words.”<br/><br/>
+
+He winks. “Three secret keys — w, e, b — might just help you skip ahead.” 
+`,
   rows: [
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
     "🌊🌊  🌊🌊This Lev🪨l 🌊🌊is🌊🌊🌊🌊🌊🌊",
@@ -12,7 +19,8 @@ export default {
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
     "🌊🪨ow to🌊🌊🌊us🪨🌊🌊w🪨rd-b🪨sed🌊🌊",
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
-    "🌊motion🪨🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊   🚪🌊🌊🌊🌊🌊",
+    "🌊motion🪨🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊!! 🚪🌊🌊🌊🌊🌊",
   ],
   player: { x: 2, y: 1 },
+  allowedKeys: new Set(["h", "j", "k", "l", "b", "w", "e"]),
 };
