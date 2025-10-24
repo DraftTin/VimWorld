@@ -1,535 +1,322 @@
-// --- Vimventure (ASCII) — sea '~' + rocks-in-words '#', :start/:restart/:help, hjkl, w/e/b, auto-advance ---
+// main.js
+import { ROCK, NPC, SEA, PLAYER, END } from "./elements.js";
+import { NON_WS_WORD_RE, WORD_RE, WS_RE } from "./helper.js";
+import {
+  renderMap,
+  renderDescription,
+  renderHint,
+  openCmdline,
+  closeCmdline,
+  updateCmdline,
+  getCmdBuffer,
+  isCmdlineOpen,
+  openHelp,
+  closeHelp,
+  isHelpOpen,
+} from "./ui.js";
 
-// DOM refs
-const GAME_EL = document.getElementById("game");
-const TITLE_EL = document.getElementById("levelTitle");
-const DESC_EL = document.getElementById("levelDesc");
-const HINTS_EL = document.getElementById("hints");
-const CMD_EL = document.getElementById("cmdOverlay");
-const CMD_TEXT = document.getElementById("cmdText");
-const CMD_MSG = document.getElementById("cmdMsg");
-const HELP_MODAL = document.getElementById("helpModal");
-const HELP_BODY = document.getElementById("helpBody");
-const BACKDROP = document.getElementById("backdrop");
+// ---------- central game state ----------
+const state = {
+  grid: [],
+  player: { x: 0, y: 0 },
+  goal: { x: 0, y: 0 },
+  started: false,
+  won: false,
+  mode: "normal", // "normal" | "cmd"
+  currentLevel: 1,
+  prevCellUnderPlayer: " ", // the char that is covered by player currently.
+};
 
-// Levels
-const LEVELS = ["levels/level1.txt", "levels/level2.txt", "levels/level3.txt"];
+// ---------- grid helpers ----------
+function at(x, y) {
+  if (y < 0 || y >= state.grid.length) return "🪨";
+  if (x < 0 || x >= state.grid[y].length) return "🪨";
+  return state.grid[y][x];
+}
+
+function canStand(ch) {
+  return ch !== "🪨" && ch !== "🌊";
+}
+
+// ---------- loading / restarting ----------
+function arrayGrid(rows) {
+  // Unicode-safe rows → 2D arrays of code points
+  return rows.map((r) => Array.from(r));
+}
+
+function clearState() {
+  state.started = false;
+  state.mode = "normal";
+  state.won = false;
+  state.prevCellUnderPlayer = " ";
+}
+
+async function loadLevel(id) {
+  clearState();
+  const mod = await import(`./levels/level${id}.js`); // ESM dynamic import
+  const level = mod.default;
+
+  // metadata
+  renderDescription(level.title, level.desc);
+  renderHint(level.hint);
+
+  // map + player
+  state.grid = arrayGrid(level.rows);
+  state.player = { ...level.player };
+
+  renderMap(state); // draws baseGrid + 👾 overlaymain
+  document.getElementById("game").focus();
+}
+
+async function restartLevel() {
+  await loadLevel(state.currentLevel);
+  // auto-start after restart (optional):
+  state.started = true;
+}
+function nextLevel() {
+  state.currentLevel = state.currentLevel + 1;
+  loadLevel(state.currentLevel);
+}
+
+// mechanics
+function move(dx, dy) {
+  if (!state.started || state.won) return;
+  const nx = state.player.x + dx,
+    ny = state.player.y + dy;
+  const cell = at(nx, ny);
+  if (!canStand(cell)) return;
+
+  state.player.x = nx;
+  state.player.y = ny;
+
+  // resolve
+  if (cell === END) {
+    state.won = true;
+    setTimeout(nextLevel, 600);
+  }
+  renderMap(state);
+}
+
+function moveE() {
+  if (!state.started || state.won) return;
+  let y = state.player.y;
+  let x = state.player.x;
+  let charOffset = 0;
+  for (let i = 0; i < y; i++) {
+    for (let j = 0; j < state.grid[i].length; j++) {
+      charOffset += state.grid[i][j].length;
+    }
+  }
+  // look from the next char
+  for (let i = 0; i <= x; i++) {
+    charOffset += state.grid[y][i].length;
+  }
+  let flatMap = state.grid.flat().join("");
+
+  let subMap = flatMap.substring(charOffset);
+  // skip space and count the actual units that need to move in actual map (utf-8 support)
+  let spaceMatch = subMap.match(WS_RE);
+  let totalCellOffset = 0;
+  if (spaceMatch) {
+    totalCellOffset += Array.from(spaceMatch[0]).length;
+    subMap = subMap.substring(spaceMatch[0].length);
+  }
+  // 'e' will move to the end of the word
+  let wordMatch = subMap.match(WORD_RE);
+  let otherMatch = subMap.match(NON_WS_WORD_RE);
+  let doubleMatch = wordMatch || otherMatch;
+  if (doubleMatch) {
+    totalCellOffset += Array.from(doubleMatch[0]).length;
+  }
+
+  // Move there
+  for (let i = 0; i < totalCellOffset; i++) {
+    x += 1;
+    if (x == state.grid[y].length) {
+      x = 0;
+      y++;
+    }
+  }
+  if (canStand(state.grid[y][x])) {
+    state.player.x = x;
+    state.player.y = y;
+    // resolve
+
+    if (state.grid[y][x] === END) {
+      state.won = true;
+      setTimeout(nextLevel, 600);
+    }
+    renderMap(state);
+  }
+}
+
+function moveW() {
+  if (!state.started || state.won) return;
+  let y = state.player.y;
+  let x = state.player.x;
+  let charOffset = 0;
+  for (let i = 0; i < y; i++) {
+    for (let j = 0; j < state.grid[i].length; j++) {
+      charOffset += state.grid[i][j].length;
+    }
+  }
+  // To correctly execute 'w', it needs to start from the current char insdead of the next one
+  for (let i = 0; i < x; i++) {
+    charOffset += state.grid[y][i].length;
+  }
+  let flatMap = state.grid.flat().join("");
+
+  let subMap = flatMap.substring(charOffset);
+  // skip the current word
+  let totalCellOffset = 0;
+  let wordMatch = subMap.match(WORD_RE);
+  let otherMatch = subMap.match(NON_WS_WORD_RE);
+  let doubleMatch = wordMatch || otherMatch;
+  if (doubleMatch) {
+    // Total offset should be (length of the word - 1) because it matches from the current character
+    totalCellOffset += Array.from(doubleMatch[0]).length - 1;
+    subMap = subMap.substring(doubleMatch[0].length);
+  }
+  // skip space and count the actual units that need to move in actual map (utf-8 support)
+  let spaceMatch = subMap.match(WS_RE);
+  if (spaceMatch) {
+    totalCellOffset += Array.from(spaceMatch[0]).length;
+    subMap = subMap.substring(spaceMatch[0].length);
+  }
+  // 'e' will move to the end of the word
+  wordMatch = subMap.match(WORD_RE);
+  otherMatch = subMap.match(NON_WS_WORD_RE);
+  doubleMatch = wordMatch || otherMatch;
+  if (doubleMatch) {
+    totalCellOffset += 1;
+  }
+
+  // Move there
+  for (let i = 0; i < totalCellOffset; i++) {
+    x += 1;
+    if (x == state.grid[y].length) {
+      x = 0;
+      y++;
+    }
+  }
+  if (canStand(state.grid[y][x])) {
+    state.player.x = x;
+    state.player.y = y;
+    if (state.grid[y][x] === END) {
+      state.won = true;
+      setTimeout(nextLevel, 600);
+    }
+    renderMap(state);
+  }
+}
+function moveB() {}
+
+// ---------- commands ----------
+function handleKey(e) {
+  // Help modal capture
+  if (isHelpOpen()) {
+    if (e.key === "Escape" || e.key === "q") {
+      e.preventDefault();
+      closeHelp();
+    } else e.preventDefault();
+    return;
+  }
+
+  // Command-line mode
+  if (isCmdlineOpen() || state.mode === "cmd") {
+    e.preventDefault();
+    state.mode = "cmd"; // ensure consistent
+    if (e.key === "Enter") {
+      const raw = getCmdBuffer(); // e.g., ":start"
+      const cmd = raw.slice(1).trim();
+      handleCommand(cmd);
+      state.mode = "normal";
+      return;
+    }
+    if (e.key === "Escape") {
+      closeCmdline();
+      state.mode = "normal";
+      return;
+    }
+    if (e.key === "Backspace") {
+      const cur = getCmdBuffer();
+      updateCmdline({ buffer: cur.length > 1 ? cur.slice(0, -1) : ":" });
+      return;
+    }
+    if (e.key.length === 1) {
+      const cur = getCmdBuffer();
+      updateCmdline({ buffer: cur + e.key });
+      return;
+    }
+    return;
+  }
+
+  // Enter command-line
+  if (e.key === ":") {
+    e.preventDefault();
+    state.mode = "cmd";
+    openCmdline(":");
+    updateCmdline({ msg: state.started ? "" : "Enter 'start' to begin" });
+    return;
+  }
+
+  // Normal controls
+  if (!state.started || state.won) return;
+  if (e.key === "h") move(-1, 0);
+  else if (e.key === "j") move(0, 1);
+  else if (e.key === "k") move(0, -1);
+  else if (e.key === "l") move(1, 0);
+  else if (e.key === "e") moveE();
+  else if (e.key === "w") moveW();
+  else if (e.key === "b") moveB();
+}
 
 const HELP_TEXT = `
 Vimventure — Help
 
 Movement
-  h j k l    move cursor (cannot step on ~ or #)
-
-Word motions (Level 2+)
-  w          jump to FIRST LETTER of the NEXT word
-             (skips words that START with #)
-  e          if inside a word and not at its end → jump to that word's LAST LETTER
-             else jump to LAST LETTER of the NEXT word
-             (skips words that END with #)
-  b          jump to FIRST LETTER of the PREVIOUS word
-             (skips words that START with #)
-
-Rocks (#) are part of a word when they REPLACE the first or last letter:
-  #his  → start is a rock; you can't land there with 'w' or 'b'
-  Thi#  → end is a rock; you can't land there with 'e'
-Motions can scan ACROSS ~ and #; they just refuse to LAND on a rock edge.
+  h j k l    move (can't stand on ${SEA} or ${ROCK})
 
 Commands
   :start     begin the level
-  :restart   restart the current level (auto-starts)
+  :restart   restart current level
   :help      show this help
+
+Elements
+  : 🌊 - player cannot stand on it. But they can jump through using some motions other than 'h', 'j', 'k', 'l'.
+  : 🪨 - player cannot stand on it. It's counted as 'ground' unlike '🌊', meaning it's will be a target of some motions.
+  : 👾 - Our player!
+  : 🚪 - Player needs to move to this place to win the game.
+
 `.trim();
 
-// State
-let grid = [];
-let player = { x: 0, y: 0 };
-let goal = { x: 0, y: 0 };
-let won = false;
-let started = false; // require :start
-let mode = "normal"; // "normal" | "cmd"
-let cmdBuffer = ":"; // ':' + typed
-let helpOpen = false;
-let currentLevelIndex = 0;
-
-// ---------- utils ----------
-function esc(ch) {
-  if (ch === "&") return "&amp;";
-  if (ch === "<") return "&lt;";
-  if (ch === ">") return "&gt;";
-  return ch;
-}
-function setLevelUI(title, descHTML) {
-  if (TITLE_EL) TITLE_EL.textContent = title;
-  if (DESC_EL) DESC_EL.innerHTML = descHTML;
-}
-function setHint(html) {
-  if (HINTS_EL) HINTS_EL.innerHTML = html;
-}
-
-function at(x, y) {
-  if (y < 0 || y >= grid.length) return "#";
-  if (x < 0 || x >= grid[y].length) return "#";
-  return grid[y][x];
-}
-function setCell(x, y, ch) {
-  grid[y][x] = ch;
-}
-function findChar(g, ch) {
-  for (let y = 0; y < g.length; y++) {
-    const x = g[y].indexOf(ch);
-    if (x !== -1) return { x, y };
-  }
-  return null;
-}
-
-// ---------- per-level text ----------
-function updateLevelMeta() {
-  const n = currentLevelIndex + 1;
-  if (currentLevelIndex === 0) {
-    setLevelUI(
-      `Level ${n} — hjkl-only maze`,
-      `Type <strong>:start</strong> to begin. Then reach <strong>G</strong> using <strong>h j k l</strong>.`,
-    );
-    setHint(`Press <strong>:</strong> → type <strong>start</strong> → Enter.`);
-  } else if (currentLevelIndex === 1) {
-    setLevelUI(
-      `Level ${n} — motions with rocks & sea`,
-      `Sea <code>~</code> blocks walking but motions scan over it. Rocks <code>#</code> replace word edges and block landing at those edges.`,
-    );
-    setHint(
-      `Examples: <code>#his</code> blocks landing for 'w'/'b'; <code>Thi#</code> blocks landing for 'e'. Try chains across ~.`,
-    );
-  } else {
-    setLevelUI(
-      `Level ${n}`,
-      `Type <strong>:start</strong> and reach <strong>G</strong>.`,
-    );
-    setHint(`Press <strong>:</strong> for commands.`);
-  }
-}
-
-// ---------- flow ----------
-async function loadLevel(path) {
-  const res = await fetch(path);
-  const text = await res.text();
-  const lines = text
-    .replace(/\r/g, "")
-    .split("\n")
-    .filter((l) => l.length > 0);
-  grid = lines.map((l) => l.split(""));
-
-  player = findChar(grid, "@");
-  if (!player) throw new Error("Level missing @ player start");
-  goal = findChar(grid, "G");
-  if (!goal) throw new Error("Level missing G goal");
-  setCell(player.x, player.y, " "); // remove @
-
-  won = false;
-  started = false;
-  mode = "normal";
-  cmdBuffer = ":";
-  updateLevelMeta();
-  render();
-  GAME_EL.focus();
-}
-
-async function restartLevel({ autostart = true } = {}) {
-  await loadLevel(LEVELS[currentLevelIndex]);
-  started = autostart;
-  if (autostart)
-    setHint(
-      "Level restarted. Move with hjkl (motions enabled if this level allows).",
-    );
-  render();
-}
-
-function loadNextLevel() {
-  currentLevelIndex = (currentLevelIndex + 1) % LEVELS.length;
-  loadLevel(LEVELS[currentLevelIndex]);
-}
-
-function completeLevel() {
-  won = true;
-  render();
-  setTimeout(loadNextLevel, 900);
-}
-
-// ---------- rendering ----------
-function render(message = "") {
-  let html = "";
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[y].length; x++) {
-      const ch = grid[y][x];
-      if (x === player.x && y === player.y) {
-        const cell = ch === " " ? "&nbsp;" : esc(ch);
-        html += `<span class="cursor">${cell}</span>`;
-      } else if (ch === "#") {
-        html += `<span class="rock">#</span>`;
-      } else if (ch === "~") {
-        html += `<span class="sea">~</span>`;
-      } else {
-        html += esc(ch);
-      }
-    }
-    if (y < grid.length - 1) html += "\n";
-  }
-  const footer = won
-    ? "\n\n🎉 Level complete!"
-    : message
-      ? "\n\n" + message
-      : "";
-  GAME_EL.innerHTML = html + esc(footer);
-
-  // command overlay
-  if (mode === "cmd") {
-    CMD_TEXT.textContent = cmdBuffer;
-    CMD_MSG.textContent = started ? "" : "Enter 'start' to begin";
-    CMD_EL.classList.remove("hidden");
-  } else {
-    CMD_EL.classList.add("hidden");
-  }
-}
-
-// ---------- movement ----------
-function move(dx, dy) {
-  if (!started || won) return;
-  const nx = player.x + dx,
-    ny = player.y + dy;
-  const ch = at(nx, ny);
-  if (ch === "#" || ch === "~") return; // cannot walk on rock or sea
-  player.x = nx;
-  player.y = ny;
-  if (player.x === goal.x && player.y === goal.y) {
-    completeLevel();
-    return;
-  }
-  render();
-}
-
-// ---------- tokenizer & motions (rocks at edges, sea allowed across) ----------
-
-function isLetter(ch) {
-  return /[A-Za-z]/.test(ch);
-}
-function isRock(ch) {
-  return ch === "#";
-}
-function isSea(ch) {
-  return ch === "~";
-}
-
-function getLine(y) {
-  if (y < 0 || y >= grid.length) return "";
-  return grid[y].join("");
-}
-
-/** Tokens where rock may REPLACE the first or last char.
- * Forms recognized per word:
- *  "#his"  → headRock=true, firstLetter = index+1, lastLetter=index+3, token span start=index, end=index+3
- *  "Thi#"  → tailRock=true, firstLetter = index,   lastLetter=index+2, token span start=index, end=index+3
- *  "word"  → noRock,       firstLetter = index,    lastLetter=index+len-1, span start..end as letters only
- *
- * We scan left→right, skipping sea and spaces between words.
- */
-function wordTokensOnLine(y) {
-  const s = getLine(y);
-  const tokens = [];
-  let i = 0;
-  while (i < s.length) {
-    // head rock: "#"+letters
-    if (isRock(s[i]) && isLetter(s[i + 1])) {
-      const start = i; // at '#'
-      const firstLetter = i + 1;
-      let j = i + 1;
-      while (j < s.length && isLetter(s[j])) j++;
-      const lastLetter = j - 1;
-      const end = lastLetter; // span ends at last letter (no trailing '#')
-      tokens.push({
-        start,
-        end,
-        firstLetter,
-        lastLetter,
-        headRock: true,
-        tailRock: false,
-      });
-      i = j;
-      continue;
-    }
-    // letters, maybe tail rock
-    if (isLetter(s[i])) {
-      const firstLetter = i;
-      let j = i;
-      while (j < s.length && isLetter(s[j])) j++;
-      let lastLetter = j - 1;
-      let end = lastLetter;
-      let tailRock = false;
-      if (isRock(s[j])) {
-        tailRock = true;
-        end = j;
-        j++;
-      } // trailing rock replaces last char
-      tokens.push({
-        start: firstLetter,
-        end,
-        firstLetter,
-        lastLetter,
-        headRock: false,
-        tailRock,
-      });
-      i = j;
-      continue;
-    }
-    // otherwise skip (sea, spaces, punctuation)
-    i++;
-  }
-  return tokens;
-}
-
-function tokenIndexAt(x, y) {
-  const ts = wordTokensOnLine(y);
-  for (let idx = 0; idx < ts.length; idx++) {
-    const t = ts[idx];
-    if (x >= t.start && x <= t.end) return idx;
-  }
-  return -1;
-}
-function tokenAt(x, y) {
-  const ts = wordTokensOnLine(y);
-  const i = tokenIndexAt(x, y);
-  return i >= 0 ? ts[i] : null;
-}
-
-// w: next token's FIRST LETTER; It cannot jump on the rock
-function nextW(x, y) {
-  const ts = wordTokensOnLine(y);
-  const i = tokenIndexAt(x, y);
-  const startFrom = i >= 0 ? i + 1 : 0;
-  for (let k = startFrom; k < ts.length; k++) {
-    const t = ts[k];
-    // If token starts with rock ('#his'), you can't land on '#', so skip it.
-    const startCharIsRock = getLine(y)[t.start] === "#";
-    if (!startCharIsRock) return { x: t.firstLetter, y };
-  }
-  return null;
-}
-
-// e: if inside and x<lastLetter → go to lastLetter; else next token's lastLetter;
-// skip tokens whose end char is '#'
-function nextE(x, y) {
-  const line = getLine(y);
-  const ts = wordTokensOnLine(y);
-  const i = tokenIndexAt(x, y);
-  const cur = i >= 0 ? ts[i] : null;
-
-  if (cur && x < cur.lastLetter) {
-    // end is lastLetter (always a letter)
-    return { x: cur.lastLetter, y };
-  }
-  // otherwise, scan next tokens
-  const startFrom = i >= 0 ? i + 1 : 0;
-  for (let k = startFrom; k < ts.length; k++) {
-    const t = ts[k];
-    const endCharIsRock = line[t.end] === "#";
-    if (!endCharIsRock) return { x: t.lastLetter, y };
-    // else skip and keep scanning (you "jump through" a rock-ended word)
-  }
-  return null;
-}
-
-// b: previous token's FIRST LETTER; skip tokens whose start char is '#'
-function prevB(x, y) {
-  const ts = wordTokensOnLine(y);
-  const i = tokenIndexAt(x, y);
-  const cur = i >= 0 ? ts[i] : null;
-
-  // inside current token and not at first letter → go to first letter
-  if (cur && x > cur.firstLetter) return { x: cur.firstLetter, y };
-
-  // otherwise, scan left
-  const startFrom = i >= 0 ? i - 1 : ts.length - 1;
-  for (let k = startFrom; k >= 0; k--) {
-    const t = ts[k];
-    const startCharIsRock = getLine(y)[t.start] === "#";
-    if (!startCharIsRock) return { x: t.firstLetter, y };
-  }
-  return null;
-}
-
-// ---------- command line ----------
-function openCmdline() {
-  mode = "cmd";
-  cmdBuffer = ":";
-  render();
-}
-function closeCmdline() {
-  mode = "normal";
-  cmdBuffer = ":";
-  render();
-}
-
-async function submitCmdline() {
-  const raw = cmdBuffer.trim();
-  const cmd = raw.slice(1);
-
+function handleCommand(cmd) {
   if (cmd === "start") {
-    started = true;
-    setHint("Game started. Move with hjkl. Motions allowed on Level 2+.");
+    state.started = true;
+    renderHint("Game started. Move with h j k l.");
     closeCmdline();
-    render();
+    renderMap(state);
     return;
   }
   if (cmd === "restart") {
     closeCmdline();
-    await restartLevel({ autostart: true });
+    restartLevel();
     return;
   }
   if (cmd === "help") {
     closeCmdline();
-    openHelp();
+    openHelp(HELP_TEXT);
     return;
   }
-  CMD_MSG.textContent = `Not an editor command: ${raw}`;
+  updateCmdline({ msg: `Not an editor command: :${cmd}` });
 }
 
-function handleCmdKey(e) {
-  const k = e.key;
-  if (k === "Enter") {
-    e.preventDefault();
-    submitCmdline();
-    return;
-  }
-  if (k === "Escape") {
-    e.preventDefault();
-    closeCmdline();
-    return;
-  }
-  if (k === "Backspace") {
-    e.preventDefault();
-    if (cmdBuffer.length > 1) cmdBuffer = cmdBuffer.slice(0, -1);
-    render();
-    return;
-  }
-  if (k.length === 1) {
-    e.preventDefault();
-    cmdBuffer += k;
-    render();
-  }
-}
-
-// ---------- help modal ----------
-function openHelp() {
-  HELP_BODY.textContent = HELP_TEXT;
-  BACKDROP.classList.remove("hidden");
-  HELP_MODAL.classList.remove("hidden");
-  helpOpen = true;
-}
-function closeHelp() {
-  BACKDROP.classList.add("hidden");
-  HELP_MODAL.classList.add("hidden");
-  helpOpen = false;
-}
-function handleHelpKey(e) {
-  const k = e.key;
-  if (k === "Escape" || k === "q") {
-    e.preventDefault();
-    closeHelp();
-    return;
-  }
-  e.preventDefault();
-}
-
-// ---------- global keys ----------
-function handleKey(e) {
-  if (helpOpen) {
-    handleHelpKey(e);
-    return;
-  }
-
-  if (e.key === ":" || mode === "cmd") e.preventDefault();
-  if (mode === "cmd") {
-    handleCmdKey(e);
-    return;
-  }
-
-  const k = e.key;
-
-  // manual advance kept (we also auto-advance)
-  if (won && k === "Enter") {
-    loadNextLevel();
-    return;
-  }
-
-  if (k === ":") {
-    openCmdline();
-    return;
-  }
-
-  if (!started) return;
-
-  // hjkl
-  if (k === "h") {
-    move(-1, 0);
-    return;
-  }
-  if (k === "j") {
-    move(0, 1);
-    return;
-  }
-  if (k === "k") {
-    move(0, -1);
-    return;
-  }
-  if (k === "l") {
-    move(1, 0);
-    return;
-  }
-
-  // motions enabled Level 2+
-  const motionsEnabled = currentLevelIndex >= 1;
-  if (!motionsEnabled) return;
-
-  if (k === "w") {
-    const t = nextW(player.x, player.y);
-    if (t) {
-      player = t;
-      if (player.x === goal.x && player.y === goal.y) {
-        completeLevel();
-        return;
-      }
-      render();
-    }
-    return;
-  }
-  if (k === "e") {
-    const t = nextE(player.x, player.y);
-    if (t) {
-      player = t;
-      if (player.x === goal.x && player.y === goal.y) {
-        completeLevel();
-        return;
-      }
-      render();
-    }
-    return;
-  }
-  if (k === "b") {
-    const t = prevB(player.x, player.y);
-    if (t) {
-      player = t;
-      if (player.x === goal.x && player.y === goal.y) {
-        completeLevel();
-        return;
-      }
-      render();
-    }
-    return;
-  }
-}
-
+// ---------- keyboard ----------
 window.addEventListener("keydown", handleKey);
 
-// Boot
-loadLevel(LEVELS[currentLevelIndex]).catch((err) => {
-  GAME_EL.textContent = "Level load error:\n" + err.message;
+// ---------- boot ----------
+// setCellSize(28); // optional
+loadLevel(state.currentLevel).catch((err) => {
+  document.getElementById("game").textContent =
+    "Level load error:\n" + err.message;
 });

@@ -1,8 +1,9 @@
-/* --- Page scaffolding --- */
+/* --- Variables & base --- */
 :root {
   --fg: #0f0;
   --bg: #000;
-  --panel: #0a0; /* subtle variant for borders */
+  --panel: #0a0;
+  --cell: 28px; /* tile size */
 }
 
 * {
@@ -20,13 +21,13 @@ body {
   font-family: monospace;
 }
 
-/* Center the whole experience vertically & horizontally */
+/* --- Layout --- */
 .page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center; /* horizontal center */
-  justify-content: center; /* vertical center */
+  align-items: center;
+  justify-content: center;
   padding: 24px;
   gap: 16px;
 }
@@ -52,38 +53,9 @@ body {
   gap: 24px;
 }
 
-/* ASCII board */
-#game {
-  white-space: pre;
-  line-height: 1.2;
-  user-select: none;
-  outline: none; /* allow focus without blue outline */
-  padding: 12px;
-  border: 1px solid var(--panel);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 24px rgba(0, 255, 0, 0.08);
-}
-
-/* Vim-like cursor highlight */
-.cursor {
-  background: currentColor; /* uses #0f0 from body */
-  color: #000;
-  outline: 1px solid var(--fg); /* visible even when underlying char is space */
-}
-.rock {
-  opacity: 0.9;
-}
-
-/* Optional blinking cursor */
-/*
-@keyframes blink { 50% { opacity: 0.35; } }
-.cursor { animation: blink 1s steps(1) infinite; }
-*/
-
 /* Sidebar for hints/NPC text */
 .sidebar {
-  min-width: 26ch; /* readable column */
+  min-width: 26ch;
   max-width: 36ch;
   padding: 12px 14px;
   border: 1px solid var(--panel);
@@ -99,7 +71,7 @@ body {
   opacity: 0.9;
 }
 
-/* Responsive tweak: stack on small screens */
+/* Responsive tweak */
 @media (max-width: 700px) {
   .stage {
     flex-direction: column;
@@ -111,18 +83,73 @@ body {
   }
 }
 
-/* ... keep your existing styles ... */
+/* --- Emoji grid (fixed-size tiles) --- */
+#game {
+  display: inline-block;
+  background: #000;
+  color: #0f0;
+  font-family: "Apple Color Emoji", "Noto Color Emoji", emoji, monospace;
+  line-height: 0;
+  user-select: none;
+  padding: 12px;
+  border: 1px solid var(--panel);
+  border-radius: 6px;
+  box-shadow: 0 0 24px rgba(0, 255, 0, 0.08);
+  outline: none;
+}
 
-/* Floating command window */
+.cell {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--cell);
+  height: var(--cell);
+  overflow: hidden;
+  font-size: calc(var(--cell) * 0.9);
+  line-height: 1;
+}
+
+.row-break {
+  display: block;
+  height: 0;
+  line-height: 0;
+}
+
+/* emoji tweaks */
+.rock {
+  opacity: 0.9;
+}
+.sea {
+  opacity: 0.9;
+}
+.goal {
+  filter: brightness(1.2);
+}
+.npc {
+  opacity: 1;
+}
+.space::before {
+  content: "";
+}
+/* Player cell highlight */
+.player {
+  background: #0f0;
+  color: #000;
+  outline: 1px solid #0f0;
+  border-radius: 4px;
+}
+
+/* --- Command line (floating) --- */
 .cmd {
   position: fixed;
   left: 50%;
-  top: 18%;
-  transform: translate(-50%, -50%);
+  top: 14%; /* sits just above the title */
+  transform: translate(-50%, 0);
+  z-index: 1100;
   background: rgba(0, 0, 0, 0.9);
-  color: var(--fg, #0f0);
+  color: var(--fg);
   font-family: monospace;
-  border: 1px solid var(--panel, #0a0);
+  border: 1px solid var(--panel);
   border-radius: 6px;
   padding: 8px 12px;
   min-width: 20ch;
@@ -139,7 +166,7 @@ body {
   margin-top: 4px;
 }
 
-/* Backdrop & modal (centered) */
+/* --- Help modal --- */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -153,12 +180,12 @@ body {
   transform: translate(-50%, -50%);
   z-index: 1001;
   background: rgba(0, 0, 0, 0.95);
-  color: var(--fg, #0f0);
+  color: var(--fg);
   font-family: monospace;
   min-width: 44ch;
   max-width: 90vw;
   max-height: 80vh;
-  border: 1px solid var(--panel, #0a0);
+  border: 1px solid var(--panel);
   border-radius: 8px;
   box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
   overflow: hidden;
@@ -172,40 +199,16 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--panel, #0a0);
+  border-bottom: 1px solid var(--panel);
   font-weight: bold;
 }
 .modal-close-hint {
   opacity: 0.8;
   font-weight: normal;
 }
-
 .modal-body {
   margin: 0;
   padding: 10px 12px 12px 12px;
   white-space: pre-wrap;
   line-height: 1.25;
-}
-
-/* Shades so ASCII is readable */
-.wall {
-  color: #0a0;
-  opacity: 0.75;
-}
-.goal {
-  color: #ff0;
-}
-.word {
-  color: #0f0;
-} /* same fg; just a hook if you want special tint */
-.under {
-  text-decoration: underline;
-  text-decoration-thickness: 0.08em;
-}
-
-/* Status line under the board */
-#status {
-  margin-top: 8px;
-  opacity: 0.9;
-  font-size: 14px;
 }

@@ -1,20 +1,18 @@
 // Level 2 — word motions
 export default {
   id: 2,
-  map: "levels/level2.txt",
   title: "Level 2 — word motions",
-  desc: "Type <strong>:start</strong>, then use <strong>w</strong>/<strong>e</strong>/<strong>b</strong> to jump by words (plus <strong>h j k l</strong>).",
-  enableMotions: true, // w/e/b enabled
-  onLoad(ctx) {
-    ctx.setHint(
-      "Tip: w→start of next word, e→end of word, b→start of previous word.",
-    );
-  },
-  onStart(ctx) {
-    ctx.setHint("Use hjkl and w/e/b to navigate words. Reach G.");
-  },
-  onComplete(ctx) {
-    ctx.toast("Nice! You mastered word motions.");
-    ctx.autoNext(1000);
-  },
+  desc: "Type <strong>:start</strong> to begin. Then reach <strong>🚪</strong> with <strong>h j k l</strong>.",
+  hint: "Press <strong>:</strong> to open command line, then type <strong>start</strong>.",
+  rows: [
+    "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
+    "🌊🌊  🌊🌊This Lev🪨l 🌊🌊is🌊🌊🌊🌊🌊🌊",
+    "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
+    "🌊🌊🪨or🌊teachin🪨 pe';;e🌊🌊🌊🌊🌊🌊",
+    "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
+    "🌊🪨ow to🌊🌊🌊us🪨🌊🌊w🪨rd-b🪨sed🌊🌊",
+    "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
+    "🌊motion🪨🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊   🚪🌊🌊🌊🌊🌊",
+  ],
+  player: { x: 2, y: 1 },
 };
