@@ -1,14 +1,59 @@
-# VimWorld
+# 🪨 Vimventure
 
-## Elements
+**Vimventure** is a small educational game that teaches core **Vim navigation** concepts through interactive, text-based puzzles.  
+Each level represents a piece of text or terrain that you explore using Vim-like motions such as `h`, `j`, `k`, `l`, `w`, `e`, and `b`.
 
-- ROCK - '🪨'
-  - ROCK is on the land, will be a part of a word if connected with other letters/numbers. But PLAYER cannot stand on it.
-- NPC - '𝌂'
-  - gives PLAYER hints if PLAYER is at the same place.
-- SEA - '🌊'
-  - area that PLAYER cannot stand on but can be jumped through.
-- PLAYER - '👾'
-  - cursor that is controlled by different vim motions
-- END POINT - '🚪'
-  - player needs to reach there in order to win the level.
+The goal is to reach the **🚪 door** while mastering how different keys move your “cursor” 👾 across the world.
+
+---
+
+## 🎯 Purpose
+
+Vimventure was designed as a fun and visual way to help new learners understand:
+
+- How **word motions** (`w`, `e`, `b`) behave in Vim.
+- The difference between **words**, **punctuation**, and **whitespace**.
+- How navigating text in Vim mirrors moving through a logical grid.
+- Other vim features will be incorporated in the future game
+
+It’s both a **game** and a **learning tool** — simple, fast, and playable right in your browser.
+
+---
+
+## 🌍 Game Elements
+
+| Symbol | Meaning         | Behavior                                                        |
+| :----: | :-------------- | :-------------------------------------------------------------- |
+|   👾   | **Player**      | You — the cursor controlled with Vim keys                       |
+|   🪨   | **Rock**        | Counts as part of words (like letters/numbers) but not walkable |
+|   🌊   | **Sea / Space** | Separates words, like whitespace; cannot stand on it            |
+|   🤖   | **NPC**         | Gives hints or lore (optional interactions)                     |
+|   🚪   | **Goal / Exit** | Reach it to finish the level                                    |
+
+---
+
+## 🎮 Controls
+
+|       Key       | Action                                             |
+| :-------------: | :------------------------------------------------- |
+| `h` `j` `k` `l` | Move left / down / up / right                      |
+|       `w`       | Jump to the start of the next word                 |
+|       `e`       | Jump to the end of the current or next word        |
+|       `b`       | Jump to the beginning of the previous word         |
+|       `:`       | Enter command mode (`:start`, `:restart`, `:help`) |
+|     `Enter`     | Confirm command                                    |
+|  `Esc` or `q`   | Close help or cancel command line                  |
+
+---
+
+## ⚙️ Run Locally
+
+### 1. Clone or download this repository
+
+```bash
+git clone https://github.com/yourusername/vimventure.git
+cd vimventure
+# local server
+python3 -m http.server 8000
+
+```
