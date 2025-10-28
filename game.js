@@ -362,7 +362,7 @@ async function handleKey(e) {
 }
 
 const HELP_TEXT = `
-Vimventure — Help
+VimWorld — Help
 
 Movement
   h  move left

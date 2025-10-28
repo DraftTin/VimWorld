@@ -1,6 +1,6 @@
-# 🪨 Vimventure
+# 🪨 VimWorld
 
-**Vimventure** is a small educational game that teaches core **Vim navigation** concepts through interactive, text-based puzzles.  
+\***\*VimWorld is a small educational game that teaches core **Vim navigation\*\* concepts through interactive, text-based puzzles.  
 Each level represents a piece of text or terrain that you explore using Vim-like motions such as `h`, `j`, `k`, `l`, `w`, `e`, and `b`.
 
 The goal is to reach the **🚪 door** while mastering how different keys move your “cursor” 👾 across the world.
@@ -9,7 +9,7 @@ The goal is to reach the **🚪 door** while mastering how different keys move y
 
 ## 🎯 Purpose
 
-Vimventure was designed as a fun and visual way to help new learners understand:
+VimWorld
 
 - How **word motions** (`w`, `e`, `b`) behave in Vim.
 - The difference between **words**, **punctuation**, and **whitespace**.
@@ -51,9 +51,13 @@ It’s both a **game** and a **learning tool** — simple, fast, and playable ri
 ### 1. Clone or download this repository
 
 ```bash
-git clone https://github.com/yourusername/vimventure.git
-cd vimventure
+git clone https://github.com/DraftTin/VimWorld.git
+cd VimWorld
 # local server
 python3 -m http.server 8000
 
 ```
+
+## Remote access
+
+Visit [VimWorld](https://drafttin.github.io/VimWorld/) webpage.
