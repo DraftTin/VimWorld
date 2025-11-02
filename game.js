@@ -364,14 +364,16 @@ async function handleKey(e) {
 const HELP_TEXT = `
 VimWorld — Help
 
-Movement
+Basic Movements
   h  move left
   j  move down
   k  move up
   l  move right
+
+Word Motions
   w  jump to the start of the next word
   e  jump to the end of the current or next word
-  b  jump to the beginning of the previous word
+  b  jump to the beginning of the current word or previous word
 
 Commands
   :start     begin the level
@@ -379,10 +381,18 @@ Commands
   :help      show this help
 
 Tips:
-  • Words are made of letters, numbers, or 🪨.
-  • 🌊 acts like space — you can’t stand on it but can move over it.
-  • Reach 🚪 to complete the level.
-  • Press ':' to open command mode, type a command, then Enter.
+• A 'Word' is a sequence of letters, digits, or 🪨 —  
+  or a sequence of special characters of the same type.
+
+• 🪨 — An obstacle on land, but recognized as a 'letter'.  
+  (The Player may jump over it with word motions but cannot stand on it.)
+
+• 🌊 — Represents open sea or space.  
+  The Player can jump across it using word motions but cannot stand on it.
+
+• Reach 🚪 to complete the level.
+
+• Press ':' to open command mode, type a command, then press Enter.
 
 `.trim();
 
