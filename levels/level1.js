@@ -25,4 +25,8 @@ Type :help for useful information.
   ],
   player: { x: 2, y: 2 }, // initial position (overlay only)
   allowedKeys: new Set(["h", "j", "k", "l"]),
+  winCon(state) {
+    const { grid, player } = state;
+    return grid[player.y] && grid[player.y][player.x] == "🚪";
+  },
 };

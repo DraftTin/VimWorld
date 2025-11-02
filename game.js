@@ -19,6 +19,7 @@ import {
 
 // ---------- central game state ----------
 const state = {
+  winCon: null,
   grid: [],
   player: { x: 0, y: 0 },
   goal: { x: 0, y: 0 },
@@ -26,7 +27,7 @@ const state = {
   won: false,
   mode: "normal", // "normal" | "cmd"
   currentLevel: 1,
-  maxLevel: 2,
+  maxLevel: 3,
   allowedKeys: [],
 };
 
@@ -51,6 +52,10 @@ function isLastLevel() {
   return state.currentLevel >= state.maxLevel;
 }
 
+function checkWin() {
+  return state.winCon(state);
+}
+
 async function loadLevel(id) {
   const mod = await import(`./levels/level${id}.js`); // ESM dynamic import
   const level = mod.default;
@@ -61,6 +66,7 @@ async function loadLevel(id) {
   state.won = false;
   state.currentLevel = id;
   state.grid = arrayGrid(level.rows);
+  state.winCon = level.winCon;
 
   state.allowedKeys = level.allowedKeys;
   state.player = { ...level.player };
@@ -111,7 +117,7 @@ function move(dx, dy) {
   state.player.y = ny;
 
   // resolve
-  if (cell === END) {
+  if (checkWin() === true) {
     onWin();
   }
   renderMap(state);
@@ -162,7 +168,7 @@ function moveE() {
     state.player.y = y;
 
     // resolve
-    if (state.grid[y][x] === END) {
+    if (checkWin() === true) {
       onWin();
     }
     renderMap(state);
@@ -195,14 +201,12 @@ function moveW() {
     totalCellOffset += Array.from(doubleMatch[0]).length;
     subMap = subMap.substring(doubleMatch[0].length);
   }
-  console.log("$$$$", totalCellOffset);
   // skip space and count the actual units that need to move in actual map (utf-8 support)
   let spaceMatch = subMap.match(WS_RE);
   if (spaceMatch) {
     totalCellOffset += Array.from(spaceMatch[0]).length;
     subMap = subMap.substring(spaceMatch[0].length);
   }
-  console.log("%%%%%", totalCellOffset);
   // 'e' will move to the end of the word
   wordMatch = subMap.match(WORD_RE);
   otherMatch = subMap.match(NON_WS_WORD_RE);
@@ -222,7 +226,7 @@ function moveW() {
   if (canStand(state.grid[y][x])) {
     state.player.x = x;
     state.player.y = y;
-    if (state.grid[y][x] === END) {
+    if (checkWin() === true) {
       onWin();
     }
     renderMap(state);
@@ -277,7 +281,7 @@ function moveB() {
     state.player.y = y;
 
     // resolve
-    if (state.grid[y][x] === END) {
+    if (checkWin() === true) {
       onWin();
     }
     renderMap(state);

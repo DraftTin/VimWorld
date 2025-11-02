@@ -25,4 +25,8 @@ Type :help for useful information.
   ],
   player: { x: 2, y: 1 },
   allowedKeys: new Set(["h", "j", "k", "l", "b", "w", "e"]),
+  winCon(state) {
+    const { grid, player } = state;
+    return grid[player.y] && grid[player.y][player.x] == "🚪";
+  },
 };
