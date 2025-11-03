@@ -11,9 +11,10 @@ The goal is to reach the **🚪 door** while mastering how different keys move y
 
 VimWorld
 
+- Familiarize (`h`, `j`, `k`, `l`) movements.
 - How **word motions** (`w`, `e`, `b`) behave in Vim.
 - The difference between **words**, **punctuation**, and **whitespace**.
-- How navigating text in Vim mirrors moving through a logical grid.
+- How to use commands (`x`, `r`) to edit text.
 - Other vim features will be incorporated in the future game
 
 It’s both a **game** and a **learning tool** — simple, fast, and playable right in your browser.
@@ -22,13 +23,15 @@ It’s both a **game** and a **learning tool** — simple, fast, and playable ri
 
 ## 🌍 Game Elements
 
-| Symbol | Meaning         | Behavior                                                        |
-| :----: | :-------------- | :-------------------------------------------------------------- |
-|   👾   | **Player**      | You — the cursor controlled with Vim keys                       |
-|   🪨   | **Rock**        | Counts as part of words (like letters/numbers) but not walkable |
-|   🌊   | **Sea / Space** | Separates words, like whitespace; cannot stand on it            |
-|   🤖   | **NPC**         | Gives hints or lore (optional interactions)                     |
-|   🚪   | **Goal / Exit** | Reach it to finish the level                                    |
+| Symbol | Meaning    | Behavior                                                        |
+| :----: | :--------- | :-------------------------------------------------------------- |
+|   👾   | **Player** | You — the cursor controlled with Vim keys                       |
+|   🪨   | **Rock**   | Counts as part of words (like letters/numbers) but not walkable |
+|   🌊   | **Sea**    | Separates words, like whitespace; cannot stand on it            |
+|   🤖   | **NPC**    | Gives hints or lore (optional interactions)                     |
+|   🚪   | **Goal**   | Reach it to finish the level                                    |
+|   🐛   | **BUG**    | BUG standable enemy; press x to remove                          |
+|   🕸   | **WEB**    | corrupted text; press r then a key to fix                       |
 
 ---
 
@@ -40,6 +43,8 @@ It’s both a **game** and a **learning tool** — simple, fast, and playable ri
 |       `w`       | Jump to the start of the next word                 |
 |       `e`       | Jump to the end of the current or next word        |
 |       `b`       | Jump to the beginning of the previous word         |
+|    `r<char>`    | Replace a character with the typed character       |
+|       `x`       | Delete the character under your cursor             |
 |       `:`       | Enter command mode (`:start`, `:restart`, `:help`) |
 |     `Enter`     | Confirm command                                    |
 |  `Esc` or `q`   | Close help or cancel command line                  |
