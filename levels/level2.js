@@ -17,14 +17,14 @@ Type :help for useful information.
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
     "🌊🌊  🌊🌊This Lev🪨l 🌊🌊is🌊🌊🌊🌊🌊🌊",
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
-    "🌊🌊🪨o🌊🌊tea🪨🪨 🌊🌊 peop🪨e🌊🌊🌊🌊🌊🌊",
+    "🌊🪨to🌊🌊teach🪨 🌊🌊 peop🪨e🌊🌊🌊🌊🌊",
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
-    "🌊🪨ow to🌊🌊🌊us🪨🌊🌊w🪨rd-b🪨sed🌊🌊",
+    "🌊🪨how to🌊🌊🌊use🪨🌊w🪨rd-b🪨sed🌊",
     "🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊",
     "🌊motio🪨s🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊!! 🚪🌊🌊🌊🌊🌊",
   ],
   player: { x: 2, y: 1 },
-  hasCorruption: true,
+  hasCorruption: false,
   allowedKeys: new Set(["h", "j", "k", "l", "b", "w", "e"]),
   winCon(state) {
     const { grid, player } = state;

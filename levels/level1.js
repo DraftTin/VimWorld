@@ -24,7 +24,7 @@ Type :help for useful information.
     "🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨🪨",
   ],
   player: { x: 2, y: 2 }, // initial position (overlay only)
-  hasCorruption: true,
+  hasCorruption: false,
   allowedKeys: new Set(["h", "j", "k", "l"]),
   winCon(state) {
     const { grid, player } = state;
