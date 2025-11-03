@@ -63,7 +63,6 @@ Type :help for useful information.
     const { grid } = state;
     for (let i = 0; i < grid.length; i++) {
       if (i >= ACTUAL_MAP.length || ACTUAL_MAP[i] !== grid[i].join("")) {
-        console.log(i);
         return false;
       }
     }

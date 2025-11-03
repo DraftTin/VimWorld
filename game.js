@@ -26,7 +26,7 @@ const state = {
   started: false,
   won: false,
   mode: "normal", // "normal" | "cmd" | "replaceOne"
-  currentLevel: 3,
+  currentLevel: 1,
   maxLevel: 3,
   allowedKeys: [],
 };
