@@ -37,6 +37,11 @@ move_sound.preload="auto";
 const win_sound = new Audio("sounds/level_completion.wav");
 win_sound.preload = "auto";
 
+const bgMusic = new Audio("sounds/bg_music.wav");
+bgMusic.loop = true;   // Makes the music repeat forever
+bgMusic.volume = 0.02;  // 30% volume so it doesn’t overpower effects
+bgMusic.play();
+
 // ---------- grid helpers ----------
 function at(x, y) {
   if (y < 0 || y >= state.grid.length) return "🪨";
@@ -123,6 +128,7 @@ function move(dx, dy) {
   }else{
     //Play move sound effect
     move_sound.currentTime =0.2 ;
+    move_sound.volume=0.5;
     move_sound.play();
 
   }
