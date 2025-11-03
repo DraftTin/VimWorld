@@ -37,6 +37,11 @@ const move_sound = new Audio("assets/movement.wav");
 move_sound.preload="auto";
 const win_sound = new Audio("assets/level_completion.wav");
 win_sound.preload = "auto";
+const kill_sound = new Audio("assets/sword_slice.mp3");
+kill_sound.preload = "auto";
+const mod_sound = new Audio("assets/modif_sound.mp3");
+mod_sound.preload = "auto";
+
 
 const bgMusic = new Audio("assets/bg_music.wav");
 bgMusic.loop = true;   // Makes the music repeat forever
@@ -327,11 +332,17 @@ function handleX() {
     onWin();
   }
   renderMap(state);
+  kill_sound.currentTime =0.2 ;
+  kill_sound.volume=0.5;
+  kill_sound.play();
 }
 
 function handleR() {
   state.mode = "replaceOne";
   renderMap(state);
+  mod_sound.currentTime =0.2 ;
+  mod_sound.volume=0.5;
+  mod_sound.play();
 }
 
 // ---------- commands ----------
