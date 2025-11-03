@@ -414,7 +414,6 @@ async function handleKey(e) {
     state.mode = "cmd";
     openCmdline(":");
     updateCmdline({ msg: state.started ? "" : "Enter 'start' to begin" });
-    bgMusic.play();
     return;
   }
 
@@ -480,6 +479,7 @@ async function handleCommand(cmd) {
       return;
     }
     state.started = true;
+    bgMusic.play();
     closeCmdline();
     renderMap(state);
     return;
