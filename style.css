@@ -3,7 +3,7 @@
   --fg: #0f0;
   --bg: #000;
   --panel: #0a0;
-  --cell: 28px; /* tile size */
+  --cell: 22px; /* tile size */
 }
 
 * {
@@ -130,7 +130,8 @@ body {
   opacity: 1;
 }
 .space::before {
-  content: "";
+  content: "·"; /* or "." or " " (figure space) */
+  color: transparent;
 }
 /* Player cell highlight */
 .player {
@@ -212,4 +213,16 @@ body {
   padding: 10px 12px 12px 12px;
   white-space: pre-wrap;
   line-height: 1.25;
+}
+
+.wrongRepair {
+  outline: 2px solid #ff5252;
+  box-shadow: 0 0 6px rgba(255, 82, 82, 0.5) inset;
+}
+.web {
+  opacity: 0.95;
+}
+
+.bug {
+  opacity: 0.95;
 }

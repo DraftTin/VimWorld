@@ -1,7 +1,7 @@
 // ui.js
 // All UI functions; NO game logic or state here.
 
-import { ROCK, NPC, SEA, END } from "./elements.js";
+import { ROCK, NPC, SEA, END, WEB, BUG, SPACE } from "./elements.js";
 
 // Cache DOM once
 const GAME_EL = document.getElementById("game");
@@ -38,12 +38,25 @@ export function renderMap(state) {
       let cls = "cell ";
 
       if (ch === "👾") cls += "player";
-      else if (ch === "🪨") cls += "rock";
-      else if (ch === "🌊") cls += "sea";
-      else if (ch === "🚪") cls += "goal";
-      else if (ch === "🤖") cls += "npc";
-      else if (ch === " ") cls += "space";
+      else if (ch === ROCK) cls += "rock";
+      else if (ch === SEA) cls += "sea";
+      else if (ch === END) cls += "goal";
+      else if (ch === NPC) cls += "npc";
+      else if (ch === WEB) cls += "web";
+      else if (ch === SPACE) cls += "space";
+      else if (ch === BUG) cls += "bug";
 
+      if (state.hasCorruption) {
+        const targ = state.targetGrid[y][x];
+        const init = state.initialGrid[y][x];
+        const cur = state.grid[y][x];
+        // only highlight after user replaced it
+        if (cur !== WEB && cur !== BUG) {
+          if (cur !== targ) {
+            cls += " wrongRepair";
+          }
+        }
+      }
       html += `<span class="${cls}">${ch}</span>`;
     }
     html += `<span class="row-break"></span>`;

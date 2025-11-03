@@ -1,5 +1,5 @@
 // game.js
-import { ROCK, NPC, SEA, PLAYER, END } from "./elements.js";
+import { ROCK, SEA, BUG, WEB, SPACE } from "./elements.js";
 import { NON_WS_WORD_RE, WORD_RE, WS_RE } from "./helper.js";
 import {
   renderMap,
@@ -25,8 +25,8 @@ const state = {
   goal: { x: 0, y: 0 },
   started: false,
   won: false,
-  mode: "normal", // "normal" | "cmd"
-  currentLevel: 1,
+  mode: "normal", // "normal" | "cmd" | "replaceOne"
+  currentLevel: 3,
   maxLevel: 3,
   allowedKeys: [],
 };
@@ -39,7 +39,7 @@ function at(x, y) {
 }
 
 function canStand(ch) {
-  return ch !== "🪨" && ch !== "🌊";
+  return ch !== ROCK && ch !== SEA;
 }
 
 // ---------- loading / restarting ----------
@@ -66,6 +66,14 @@ async function loadLevel(id) {
   state.won = false;
   state.currentLevel = id;
   state.grid = arrayGrid(level.rows);
+
+  state.hasCorruption = level.hasCorruption;
+  if (state.hasCorruption === true) {
+    state.initialGrid = level.rows.map((r) => Array.from(r)); // immutable copy
+    state.targetGrid = level.targetRows
+      ? level.targetRows.map((r) => Array.from(r))
+      : null;
+  }
   state.winCon = level.winCon;
 
   state.allowedKeys = level.allowedKeys;
@@ -73,7 +81,7 @@ async function loadLevel(id) {
 
   renderDescription(level.title, level.desc);
   renderHint(level.hint);
-  renderMap(state); // draws baseGrid + 👾 overlaymain
+  renderMap(state);
   document.getElementById("game").focus();
 }
 
@@ -288,6 +296,22 @@ function moveB() {
   }
 }
 
+function handleX() {
+  let { player } = state;
+  // change tile to space (delete the content in a tile)
+  state.grid[player.y][player.x] = SPACE;
+  // resolve
+  if (checkWin() === true) {
+    onWin();
+  }
+  renderMap(state);
+}
+
+function handleR() {
+  state.mode = "replaceOne";
+  renderMap(state);
+}
+
 // ---------- commands ----------
 async function handleKey(e) {
   // Help modal capture
@@ -312,6 +336,27 @@ async function handleKey(e) {
     return;
   }
 
+  // ReplaceOne mode
+  if (state.mode == "replaceOne") {
+    e.preventDefault();
+    const k = e.key;
+    if (k === "Escape") {
+      state.mode = "normal";
+      return;
+    }
+
+    // only single printable characters
+    if (k.length === 1) {
+      const { x, y } = state.player;
+      state.grid[y][x] = k;
+      renderMap(state);
+      if (checkWin() === true) {
+        onWin();
+      }
+      state.mode = "normal";
+    }
+    return;
+  }
   // Command-line mode
   if (isCmdlineOpen() || state.mode === "cmd") {
     e.preventDefault();
@@ -363,6 +408,8 @@ async function handleKey(e) {
   else if (e.key === "e") moveE();
   else if (e.key === "w") moveW();
   else if (e.key === "b") moveB();
+  else if (e.key === "x") handleX();
+  else if (e.key === "r") handleR();
 }
 
 const HELP_TEXT = `
@@ -379,25 +426,26 @@ Word Motions
   e  jump to the end of the current or next word
   b  jump to the beginning of the current word or previous word
 
+Editing
+  x        slay (delete) the character under your cursor
+  r<char>  repair (replace) a character with the typed character
+
+Tiles
+  🚪 DOOR  reach to finish levels that use doors
+  🪨 ROCK  counts as a word char; but not walkable (The Player may jump over it with word motions but cannot stand on it.)
+  🌊 SEA   counts as a space; but not walkable (The Player can jump across it using word motions but cannot stand on it.)
+  🐛 BUG   standable enemy; press x to remove
+  🕸 WEB   corrupted text; press r then a key to fix
+
 Commands
   :start     begin the level
   :restart   restart current level
   :help      show this help
 
 Tips:
-• A 'Word' is a sequence of letters, digits, or 🪨 —  
-  or a sequence of special characters of the same type.
-
-• 🪨 — An obstacle on land, but recognized as a 'letter'.  
-  (The Player may jump over it with word motions but cannot stand on it.)
-
-• 🌊 — Represents open sea or space.  
-  The Player can jump across it using word motions but cannot stand on it.
-
-• Reach 🚪 to complete the level.
-
-• Press ':' to open command mode, type a command, then press Enter.
-
+• A 'Word' is a sequence of letters/digits/🪨/🐛/🕸 or a sequence of same characters.
+• Use word motions to move faster!
+• The tile with red border means the tile was not fixed correctly!
 `.trim();
 
 async function handleCommand(cmd) {

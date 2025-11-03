@@ -4,3 +4,6 @@ export const NPC = "🤖";
 export const SEA = "🌊";
 export const PLAYER = "👾";
 export const END = "🚪";
+export const BUG = "🐛";
+export const WEB = "🕸";
+export const SPACE = " ";
