@@ -30,6 +30,13 @@ const state = {
   allowedKeys: [],
 };
 
+// ------------ sounds --------------
+
+const move_sound = new Audio("sounds/movement.wav");
+move_sound.preload="auto";
+const win_sound = new Audio("sounds/level_completion.wav");
+win_sound.preload = "auto";
+
 // ---------- grid helpers ----------
 function at(x, y) {
   if (y < 0 || y >= state.grid.length) return "🪨";
@@ -98,6 +105,9 @@ function onWin() {
       "Nice! Level complete.\n\nPress 'q' or 'Esc' to continue to the next level.",
     );
   }
+  //Play game completed sound effect
+  win_sound.currentTime =0 ;
+  win_sound.play();
 }
 
 function move(dx, dy) {
@@ -105,7 +115,17 @@ function move(dx, dy) {
   const nx = state.player.x + dx,
     ny = state.player.y + dy;
   const cell = at(nx, ny);
-  if (!canStand(cell)) return;
+ 
+  if (!canStand(cell)) {
+    //Add collision grunt or sound 
+
+    return;
+  }else{
+    //Play move sound effect
+    move_sound.currentTime =0.2 ;
+    move_sound.play();
+
+  }
 
   state.player.x = nx;
   state.player.y = ny;
