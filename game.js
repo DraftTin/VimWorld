@@ -41,7 +41,7 @@ win_sound.preload = "auto";
 const bgMusic = new Audio("assets/bg_music.wav");
 bgMusic.loop = true;   // Makes the music repeat forever
 bgMusic.volume = 0.02;  // 30% volume so it doesn’t overpower effects
-bgMusic.play();
+
 
 // ---------- grid helpers ----------
 function at(x, y) {
@@ -414,6 +414,7 @@ async function handleKey(e) {
     state.mode = "cmd";
     openCmdline(":");
     updateCmdline({ msg: state.started ? "" : "Enter 'start' to begin" });
+    bgMusic.play();
     return;
   }
 
