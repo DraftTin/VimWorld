@@ -43,10 +43,6 @@ function canStand(ch) {
 }
 
 // ---------- loading / restarting ----------
-function arrayGrid(rows) {
-  // Unicode-safe rows → 2D arrays of code points
-  return rows.map((r) => Array.from(r));
-}
 
 function isLastLevel() {
   return state.currentLevel >= state.maxLevel;
@@ -65,7 +61,7 @@ async function loadLevel(id) {
   state.mode = "normal";
   state.won = false;
   state.currentLevel = id;
-  state.grid = arrayGrid(level.rows);
+  state.grid = level.rows.map((r) => Array.from(r));
 
   state.hasCorruption = level.hasCorruption;
   if (state.hasCorruption === true) {
