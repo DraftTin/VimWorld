@@ -33,12 +33,12 @@ const state = {
 
 // ------------ sounds --------------
 
-const move_sound = new Audio("sounds/movement.wav");
+const move_sound = new Audio("assets/movement.wav");
 move_sound.preload="auto";
-const win_sound = new Audio("sounds/level_completion.wav");
+const win_sound = new Audio("assets/level_completion.wav");
 win_sound.preload = "auto";
 
-const bgMusic = new Audio("sounds/bg_music.wav");
+const bgMusic = new Audio("assets/bg_music.wav");
 bgMusic.loop = true;   // Makes the music repeat forever
 bgMusic.volume = 0.02;  // 30% volume so it doesn’t overpower effects
 bgMusic.play();
