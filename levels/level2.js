@@ -24,6 +24,7 @@ Type :help for useful information.
     "🌊motio🪨s🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊!! 🚪🌊🌊🌊🌊🌊",
   ],
   player: { x: 2, y: 1 },
+  hasCorruption: true,
   allowedKeys: new Set(["h", "j", "k", "l", "b", "w", "e"]),
   winCon(state) {
     const { grid, player } = state;
