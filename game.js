@@ -46,7 +46,7 @@ jump_sound.preload = "auto";
 
 const bgMusic = new Audio("assets/bg_music.wav");
 bgMusic.loop = true; // Makes the music repeat forever
-bgMusic.volume = 0.03; // 30% volume so it doesn’t overpower effects
+bgMusic.volume = 0.05;
 
 // ---------- grid helpers ----------
 function at(x, y) {
@@ -127,7 +127,7 @@ function onWin() {
   }
   //Play game completed sound effect
   win_sound.currentTime = 0;
-  win_sound.volume = 0.5;
+  win_sound.volume = 0.2;
   win_sound.play();
 }
 
