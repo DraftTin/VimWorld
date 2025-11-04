@@ -41,6 +41,9 @@ const kill_sound = new Audio("assets/sword_slice.mp3");
 kill_sound.preload = "auto";
 const mod_sound = new Audio("assets/modif_sound.mp3");
 mod_sound.preload = "auto";
+const jump_sound = new Audio("assets/jump.mp3");
+jump_sound.preload = "auto";
+
 
 
 const bgMusic = new Audio("assets/bg_music.wav");
@@ -143,7 +146,7 @@ function move(dx, dy) {
   }else{
     //Play move sound effect
     move_sound.currentTime =0.2 ;
-    move_sound.volume=0.5;
+    move_sound.volume=0.3;
     move_sound.play();
 
   }
@@ -201,6 +204,10 @@ function moveE() {
   if (canStand(state.grid[y][x])) {
     state.player.x = x;
     state.player.y = y;
+
+    jump_sound.currentTime =0.1 ;
+    jump_sound.volume=0.4;
+    jump_sound.play();
 
     // resolve
     if (checkWin() === true) {
@@ -261,6 +268,9 @@ function moveW() {
   if (canStand(state.grid[y][x])) {
     state.player.x = x;
     state.player.y = y;
+    jump_sound.currentTime =0.1 ;
+    jump_sound.volume=0.4;
+    jump_sound.play();
     if (checkWin() === true) {
       onWin();
     }
@@ -314,7 +324,9 @@ function moveB() {
   if (canStand(state.grid[y][x])) {
     state.player.x = x;
     state.player.y = y;
-
+    jump_sound.currentTime =0.1 ;
+    jump_sound.volume=0.4;
+    jump_sound.play();
     // resolve
     if (checkWin() === true) {
       onWin();
@@ -333,7 +345,7 @@ function handleX() {
   }
   renderMap(state);
   kill_sound.currentTime =0.2 ;
-  kill_sound.volume=0.5;
+  kill_sound.volume=0.2;
   kill_sound.play();
 }
 
@@ -341,7 +353,7 @@ function handleR() {
   state.mode = "replaceOne";
   renderMap(state);
   mod_sound.currentTime =0.2 ;
-  mod_sound.volume=0.5;
+  mod_sound.volume=0.3;
   mod_sound.play();
 }
 
